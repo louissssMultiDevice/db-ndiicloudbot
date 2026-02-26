@@ -1,0 +1,36 @@
+name: Sync Database
+
+on:
+  push:
+    paths:
+      - 'data/**'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Validate JSON
+        run: |
+          for file in data/*.json; do
+            echo "Validating $file..."
+            jq empty "$file" || exit 1
+          done
+          
+      - name: Backup Database
+        run: |
+          mkdir -p backups
+          cp data/*.json backups/
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add backups/
+          git commit -m "Auto backup $(date +%Y%m%d_%H%M%S)" || echo "No changes"
+          
+      - name: Notify Webhook (Optional)
+        run: |
+          curl -X POST "${{ secrets.BOT_WEBHOOK_URL }}" \
+               -H "Authorization: ${{ secrets.BOT_TOKEN }}" \
+               -d '{"event":"db_updated","timestamp":"'$(date -Iseconds)'"}' || true
+               
