@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15T00:00:00Z",
+  "users": [],
+  "settings": {
+    "reminderDays": [7, 3, 1],
+    "autoRenew": false
+  }
+}
+
